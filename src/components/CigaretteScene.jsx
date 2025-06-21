@@ -4,14 +4,19 @@ import * as THREE from "three";
 import { useEffect, useRef } from "react";
 
 export default function CigaretteScene() {
-  const { scene } = useGLTF("/models/cigarette.glb");
-  const cover = scene.getObjectByName("Cover");
-  const leaf = scene.getObjectByName("Leaf");
+  const { scene: cigScene } = useGLTF("/models/cigarette.glb");
+  const cover = cigScene.getObjectByName("Cover");
+  const leaf = cigScene.getObjectByName("Leaf");
+
+  const { scene: ashScene } = useGLTF("/models/ash.glb");
+  const ash = ashScene.getObjectByName("Ash");
 
   const { camera } = useThree();
   const cigaretteGroup = useRef();
+  const ashRef = useRef();
+
   const MAX_BURN = 2.3;
-  const INITIAL_OFFSET = -1.3;
+  const INITIAL_OFFSET = -1.4;
   const burnAmount = useRef(0);
   const burning = useRef(false);
 
@@ -20,6 +25,9 @@ export default function CigaretteScene() {
   );
 
   const mouse = useRef({ x: 0, y: 0 });
+
+  const ashLengthScale = useRef(1); // 1일 때 길이 40
+  const growing = useRef(true);
 
   useEffect(() => {
     const onDown = () => (burning.current = true);
@@ -54,30 +62,61 @@ export default function CigaretteScene() {
     cigaretteGroup.current.add(helper);
   }, []);
 
-  useFrame(() => {
-    if (!cigaretteGroup.current) return;
+  useEffect(() => {
+    if (!ashRef.current) return;
+    ashRef.current.position.set(-1.1, 0, 0);
+    ashRef.current.scale.set(0.01, 0.01, 0.01);
+    ashRef.current.rotation.set(0, 0, Math.PI / 2);
+  }, []);
 
-    // 클리핑 진행
+  useFrame(() => {
+    if (!cigaretteGroup.current || !ashRef.current) return;
+
+    // cigaretteGroup 클리핑
     if (burning.current && burnAmount.current < MAX_BURN) {
       burnAmount.current += 0.002;
       burnClip.current.constant = -(INITIAL_OFFSET + burnAmount.current);
     }
 
+    // Ash 조건부 표시 및 위치/스케일 업데이트
+    if (burning.current && burnAmount.current > 0.3) {
+      const newX = INITIAL_OFFSET + burnAmount.current;
+      ashRef.current.position.x = newX;
+
+      if (growing.current) {
+        ashLengthScale.current += 0.002;
+        if (ashLengthScale.current >= 1.3) growing.current = false;
+      } else {
+        ashLengthScale.current -= 0.002;
+        if (ashLengthScale.current <= 0.5) growing.current = true;
+      }
+      ashRef.current.scale.set(0.01, 0.01 * ashLengthScale.current, 0.01);
+    } else {
+      ashLengthScale.current = 1;
+      growing.current = true;
+    }
+
+    // 카메라 회전
     const rx = mouse.current.y * -2;
     const ry = mouse.current.x * -2;
 
     const radius = 4;
-    const offset = burnAmount.current / 2; // 화면 중심 보정용 오프셋
+    const offset = burnAmount.current / 2;
 
-    const targetX = Math.sin(ry) * radius - offset; // 카메라가 클리핑 방향으로 보정
+    const targetX = Math.sin(ry) * radius - offset;
     const targetZ = Math.cos(ry) * radius;
     const targetY = rx * 1.5;
 
     camera.position.lerp(new THREE.Vector3(targetX, targetY, targetZ), 0.05);
-    camera.lookAt(offset, 0, 0); // 카메라 중심도 보정
+    camera.lookAt(offset, 0, 0);
 
     cigaretteGroup.current.position.set(0, 0, 0);
   });
 
-  return <primitive object={scene} ref={cigaretteGroup} />;
+  return (
+    <>
+      <primitive object={cigScene} ref={cigaretteGroup} />
+      {ash && <primitive object={ash} ref={ashRef} />}
+    </>
+  );
 }
