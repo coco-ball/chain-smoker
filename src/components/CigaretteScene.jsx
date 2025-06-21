@@ -15,7 +15,7 @@ export default function CigaretteScene() {
   const cigaretteGroup = useRef();
   const ashRef = useRef();
 
-  const MAX_BURN = 2.3;
+  const MAX_BURN = 2.5;
   const INITIAL_OFFSET = -1.4;
   const burnAmount = useRef(0);
   const burning = useRef(false);
@@ -73,27 +73,39 @@ export default function CigaretteScene() {
     if (!cigaretteGroup.current || !ashRef.current) return;
 
     // cigaretteGroup 클리핑
-    if (burning.current && burnAmount.current < MAX_BURN) {
+    if (burning.current && burnAmount.current <= MAX_BURN) {
       burnAmount.current += 0.002;
       burnClip.current.constant = -(INITIAL_OFFSET + burnAmount.current);
     }
 
+    console.log(burnAmount.current, growing.current);
+
     // Ash 조건부 표시 및 위치/스케일 업데이트
-    if (burning.current && burnAmount.current > 0.3) {
+    if (
+      burning.current &&
+      burnAmount.current > 0.3 &&
+      ashLengthScale.current >= 0.3
+    ) {
       const newX = INITIAL_OFFSET + burnAmount.current;
       ashRef.current.position.x = newX;
 
+      if (burnAmount.current >= MAX_BURN) {
+        growing.current = false;
+      }
+
       if (growing.current) {
         ashLengthScale.current += 0.002;
-        if (ashLengthScale.current >= 1.3) growing.current = false;
+        if (ashLengthScale.current >= 1.3) {
+          growing.current = false;
+        }
       } else {
         ashLengthScale.current -= 0.002;
-        if (ashLengthScale.current <= 0.5) growing.current = true;
+        if (ashLengthScale.current <= 0.5 && burnAmount.current < MAX_BURN) {
+          growing.current = true;
+        }
       }
+
       ashRef.current.scale.set(0.01, 0.01 * ashLengthScale.current, 0.01);
-    } else {
-      ashLengthScale.current = 1;
-      growing.current = true;
     }
 
     // 카메라 회전
