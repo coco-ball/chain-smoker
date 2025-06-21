@@ -1,19 +1,13 @@
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import CigaretteScene from "./components/CigaretteScene";
+import { Routes, Route } from "react-router-dom";
+import SmokingPage from "./pages/SmokingPage";
+import AshtrayPage from "./pages/AshtrayPage";
+import "./App.css";
 
 export default function App() {
   return (
-    <Canvas
-      camera={{ position: [0, 0, 5], fov: 50 }}
-      shadows
-      style={{ width: "100vw", height: "100vh" }}
-      gl={{ localClippingEnabled: true }}
-    >
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 10, 5]} intensity={1} />
-      <CigaretteScene />
-      <OrbitControls />
-    </Canvas>
+    <Routes>
+      <Route path="/" element={<SmokingPage />} />
+      <Route path="/ashtray" element={<AshtrayPage />} />
+    </Routes>
   );
 }

@@ -78,7 +78,7 @@ export default function CigaretteScene() {
       burnClip.current.constant = -(INITIAL_OFFSET + burnAmount.current);
     }
 
-    console.log(burnAmount.current, growing.current);
+    // console.log(burnAmount.current, growing.current);
 
     // Ash 조건부 표시 및 위치/스케일 업데이트
     if (
