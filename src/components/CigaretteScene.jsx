@@ -3,7 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
 
-export default function CigaretteScene() {
+export default function CigaretteScene({ burnAmount, ashLengthScale }) {
   const { scene: cigScene } = useGLTF("/models/cigarette.glb");
   const cover = cigScene.getObjectByName("Cover");
   const leaf = cigScene.getObjectByName("Leaf");
@@ -17,7 +17,7 @@ export default function CigaretteScene() {
 
   const MAX_BURN = 2.5;
   const INITIAL_OFFSET = -1.4;
-  const burnAmount = useRef(0);
+  //   const burnAmount = useRef(0);
   const burning = useRef(false);
 
   const burnClip = useRef(
@@ -26,7 +26,7 @@ export default function CigaretteScene() {
 
   const mouse = useRef({ x: 0, y: 0 });
 
-  const ashLengthScale = useRef(1); // 1일 때 길이 40
+  //   const ashLengthScale = useRef(1);
   const growing = useRef(true);
 
   useEffect(() => {
@@ -58,8 +58,8 @@ export default function CigaretteScene() {
 
   useEffect(() => {
     if (!cigaretteGroup.current) return;
-    const helper = new THREE.PlaneHelper(burnClip.current, 0.2, 0xff0000);
-    cigaretteGroup.current.add(helper);
+    // const helper = new THREE.PlaneHelper(burnClip.current, 0.2, 0xff0000);
+    // cigaretteGroup.current.add(helper);
   }, []);
 
   useEffect(() => {
