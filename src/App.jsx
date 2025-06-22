@@ -12,16 +12,6 @@ export default function App() {
   const burnAmount = useRef(0);
   const ashLengthScale = useRef(1); // 1일 때 길이 40
 
-  const finishSmoking = () => {
-    setMode("dropping");
-  };
-
-  const startSmoking = () => {
-    burnAmount.current = 0;
-    ashLengthScale.current = 1;
-    setMode("smoking");
-  };
-
   return (
     <div className="canvas-container">
       <Canvas

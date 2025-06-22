@@ -118,22 +118,10 @@ export default function CigaretteScene({
   //Ash
   useEffect(() => {
     if (!ashRef.current) return;
+
     ashRef.current.position.set(-1.09, 0, 0);
     ashRef.current.scale.set(0.01, 0.01, 0.01);
     ashRef.current.rotation.set(0, 0, Math.PI / 2);
-
-    const ashMaterial = createAshMaterial();
-    ashRef.current.traverse((child) => {
-      if (child.isMesh) {
-        child.material = ashMaterial;
-      }
-    });
-  }, []);
-
-  const ashMatRef = useRef();
-
-  useEffect(() => {
-    if (!ashRef.current) return;
 
     const ashMaterial = createAshMaterial();
     ashMatRef.current = ashMaterial;
@@ -144,6 +132,8 @@ export default function CigaretteScene({
       }
     });
   }, []);
+
+  const ashMatRef = useRef();
 
   //Ash Animation
   useAshTimeUniform(ashMatRef);

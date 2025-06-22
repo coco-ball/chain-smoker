@@ -11,7 +11,7 @@ export default function AshtrayScene() {
   const { scene: ashScene } = useGLTF("/models/ash.glb");
   const ash = ashScene.getObjectByName("Ash");
 
-  const coverWrap = useTexture("/textures/coverWrap.png");
+  const coverWrap = useTexture("/textures/coverWrapBurnt.png");
   const coverRoughness = useTexture("/textures/coverRoughness.png");
   coverRoughness.encoding = THREE.LinearEncoding;
   coverWrap.minFilter = THREE.LinearMipMapLinearFilter;
@@ -40,7 +40,7 @@ export default function AshtrayScene() {
 
     // 카메라 이동 애니메이션
     let frame = 0;
-    const totalFrames = 120;
+    const totalFrames = 80;
     const initialPos = camera.position.clone();
     const initialFov = camera.fov;
 
