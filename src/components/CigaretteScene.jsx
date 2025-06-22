@@ -1,7 +1,8 @@
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, useTexture } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
+import { createAshMaterial } from "../materials/AshMaterial";
 
 export default function CigaretteScene({ burnAmount, ashLengthScale }) {
   const { scene: cigScene } = useGLTF("/models/cigarette.glb");
@@ -26,8 +27,18 @@ export default function CigaretteScene({ burnAmount, ashLengthScale }) {
 
   const mouse = useRef({ x: 0, y: 0 });
 
-  //   const ashLengthScale = useRef(1);
   const growing = useRef(true);
+
+  //materials
+  const coverWrap = useTexture("/textures/coverWrap.png");
+  const leafWrap = useTexture("/textures/leafWrap.png");
+  const coverRoughness = useTexture("/textures/coverRoughness.png");
+  coverRoughness.encoding = THREE.LinearEncoding;
+  coverWrap.minFilter = THREE.LinearMipMapLinearFilter;
+  coverWrap.magFilter = THREE.NearestFilter;
+  coverWrap.anisotropy = 16;
+  leafWrap.magFilter = THREE.NearestFilter;
+  leafWrap.anisotropy = 16;
 
   useEffect(() => {
     const onDown = () => (burning.current = true);
@@ -46,27 +57,68 @@ export default function CigaretteScene({ burnAmount, ashLengthScale }) {
     };
   }, []);
 
-  useEffect(() => {
-    const mats = [cover?.material, leaf?.material];
-    for (const mat of mats) {
-      if (!mat) continue;
-      mat.transparent = true;
-      mat.side = THREE.DoubleSide;
-      mat.clippingPlanes = [burnClip.current];
-    }
-  }, [cover, leaf]);
+  // useEffect(() => {
+  //   const mats = [cover?.material, leaf?.material];
+  //   for (const mat of mats) {
+  //     if (!mat) continue;
+  //     mat.transparent = true;
+  //     mat.side = THREE.DoubleSide;
+  //     mat.clippingPlanes = [burnClip.current];
+  //   }
+  // }, [cover, leaf]);
 
+  //material
+  useEffect(() => {
+    if (!cover || !leaf) return;
+
+    // Cover 머티리얼 설정
+    const coverMaterial = new THREE.MeshStandardMaterial({
+      map: coverWrap,
+      metalness: 0.1,
+      roughness: 0.9,
+      roughnessMap: coverRoughness,
+      transparent: true,
+      side: THREE.DoubleSide,
+      clippingPlanes: [burnClip.current],
+    });
+    coverMaterial.map.repeat.set(1, 1); // 필요시 조절
+    coverMaterial.map.wrapS = THREE.RepeatWrapping;
+    coverMaterial.map.wrapT = THREE.RepeatWrapping;
+    // coverMaterial.map.offset.x = 0.9;
+    cover.material = coverMaterial;
+
+    // Leaf 머티리얼 설정 (노이즈 이미지 기반)
+    const leafMaterial = new THREE.MeshStandardMaterial({
+      map: leafWrap,
+      transparent: true,
+      side: THREE.DoubleSide,
+      clippingPlanes: [burnClip.current],
+    });
+    leafMaterial.map.wrapS = THREE.RepeatWrapping;
+    leafMaterial.map.wrapT = THREE.RepeatWrapping;
+    leaf.material = leafMaterial;
+  }, [cover, leaf, coverWrap, leafWrap]);
+
+  //helper
   useEffect(() => {
     if (!cigaretteGroup.current) return;
     // const helper = new THREE.PlaneHelper(burnClip.current, 0.2, 0xff0000);
     // cigaretteGroup.current.add(helper);
   }, []);
 
+  //Ash
   useEffect(() => {
     if (!ashRef.current) return;
     ashRef.current.position.set(-1.1, 0, 0);
     ashRef.current.scale.set(0.01, 0.01, 0.01);
     ashRef.current.rotation.set(0, 0, Math.PI / 2);
+
+    const ashMaterial = createAshMaterial();
+    ashRef.current.traverse((child) => {
+      if (child.isMesh) {
+        child.material = ashMaterial;
+      }
+    });
   }, []);
 
   useFrame(() => {

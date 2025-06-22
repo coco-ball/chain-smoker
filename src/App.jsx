@@ -36,8 +36,9 @@ export default function App() {
         style={{ width: "100%", height: "100%" }}
         gl={{ localClippingEnabled: true }}
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 10, 5]} intensity={1} />
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[0, 10, 5]} intensity={2} />
+        <directionalLight position={[10, 10, 0]} intensity={1} />
         {mode === "smoking" ? (
           <CigaretteScene
             burnAmount={burnAmount}
