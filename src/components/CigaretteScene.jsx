@@ -3,6 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
 import { createAshMaterial } from "../materials/AshMaterial";
+import { useAshTimeUniform } from "../materials/updateShaderTime";
 
 export default function CigaretteScene({ burnAmount, ashLengthScale }) {
   const { scene: cigScene } = useGLTF("/models/cigarette.glb");
@@ -109,7 +110,7 @@ export default function CigaretteScene({ burnAmount, ashLengthScale }) {
   //Ash
   useEffect(() => {
     if (!ashRef.current) return;
-    ashRef.current.position.set(-1.1, 0, 0);
+    ashRef.current.position.set(-1.09, 0, 0);
     ashRef.current.scale.set(0.01, 0.01, 0.01);
     ashRef.current.rotation.set(0, 0, Math.PI / 2);
 
@@ -120,6 +121,33 @@ export default function CigaretteScene({ burnAmount, ashLengthScale }) {
       }
     });
   }, []);
+
+  const ashMatRef = useRef();
+
+  useEffect(() => {
+    if (!ashRef.current) return;
+
+    const ashMaterial = createAshMaterial();
+    ashMatRef.current = ashMaterial;
+
+    ashRef.current.traverse((child) => {
+      if (child.isMesh) {
+        child.material = ashMaterial;
+      }
+    });
+  }, []);
+
+  //Ash Animation
+  useAshTimeUniform(ashMatRef);
+  useFrame((_, delta) => {
+    if (ashRef.current) {
+      ashRef.current.traverse((child) => {
+        if (child.isMesh && child.material.uniforms?.time) {
+          child.material.uniforms.time.value += delta;
+        }
+      });
+    }
+  });
 
   useFrame(() => {
     if (!cigaretteGroup.current || !ashRef.current) return;
@@ -135,7 +163,7 @@ export default function CigaretteScene({ burnAmount, ashLengthScale }) {
     // Ash 조건부 표시 및 위치/스케일 업데이트
     if (
       burning.current &&
-      burnAmount.current > 0.3 &&
+      burnAmount.current > 0.31 &&
       ashLengthScale.current >= 0.3
     ) {
       const newX = INITIAL_OFFSET + burnAmount.current;

@@ -5,7 +5,7 @@ export function createAshMaterial() {
     time: { value: 0 },
     viewVector: { value: new THREE.Vector3() },
 
-    // Noise 색상 팔레트 (Ashima 스타일 유사 구현)
+    // Noise 색상 팔레트
     colorA: { value: new THREE.Color("#3F3F3F") },
     colorB: { value: new THREE.Color("#888888") },
     colorC: { value: new THREE.Color("#313131") },
@@ -27,7 +27,6 @@ export function createAshMaterial() {
       vViewDir = -mvPosition.xyz;
       vPos = position;
 
-      // Displacement: Perlin-like (단순화된 흉내)
       float d = sin(position.x * 40.0 + position.z * 30.0) * 0.9;
       vec3 displaced = position + normal * d;
 
@@ -40,6 +39,7 @@ export function createAshMaterial() {
     varying vec3 vViewDir;
     varying vec3 vPos;
 
+    uniform float time;
     uniform vec3 colorA;
     uniform vec3 colorB;
     uniform vec3 colorC;
@@ -47,18 +47,12 @@ export function createAshMaterial() {
     uniform vec3 fresnelColor1;
     uniform vec3 fresnelColor2;
 
-    // Hash function (GLSL noise 대체)
-    float hash(vec2 p) {
-      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-    }
-
-    // Fake noise (Ashima 유사)
     float pseudoNoise(vec3 p) {
       return fract(sin(dot(p, vec3(12.9898, 78.233, 151.7182))) * 43758.5453);
     }
 
     vec3 getNoiseColor(vec3 pos) {
-      float n = pseudoNoise(pos * 2.95); // Movement 값 적용
+      float n = pseudoNoise(pos * 2.95);
       if (n < 0.25) return colorA;
       else if (n < 0.5) return colorB;
       else if (n < 0.75) return colorC;
@@ -72,11 +66,11 @@ export function createAshMaterial() {
     void main() {
       vec3 base = getNoiseColor(vPos);
 
-      float f1 = fresnel(vNormal, vViewDir, 0.01, 0.3, 3.5);
-      float f2 = fresnel(vNormal, vViewDir, 0.02, 0.3, 7.5);
+      float f1 = fresnel(vNormal, vViewDir, 0.02, 0.5 + 0.4 * sin(time*0.5), 4.5);
+      float f2 = fresnel(vNormal, vViewDir, 0.02, 0.6 + 0.5 * cos(time*0.8), 8.5);
 
-      vec3 glow1 = fresnelColor1 * f1*1.5;
-      vec3 glow2 = fresnelColor2 * f2*2.5;
+      vec3 glow1 = fresnelColor1 * f1 * 2.2;
+      vec3 glow2 = fresnelColor2 * f2 * 3.0;
 
       vec3 finalColor = base + glow1 + glow2;
       gl_FragColor = vec4(finalColor, 1.0);
@@ -87,7 +81,7 @@ export function createAshMaterial() {
     uniforms,
     vertexShader,
     fragmentShader,
-    lights: false,
     transparent: false,
+    lights: false,
   });
 }
