@@ -5,7 +5,12 @@ import { useEffect, useRef } from "react";
 import { createAshMaterial } from "../materials/AshMaterial";
 import { useAshTimeUniform } from "../materials/updateShaderTime";
 
-export default function CigaretteScene({ burnAmount, ashLengthScale }) {
+export default function CigaretteScene({
+  mode,
+  setMode,
+  burnAmount,
+  ashLengthScale,
+}) {
   const { scene: cigScene } = useGLTF("/models/cigarette.glb");
   const cover = cigScene.getObjectByName("Cover");
   const leaf = cigScene.getObjectByName("Leaf");
@@ -29,6 +34,9 @@ export default function CigaretteScene({ burnAmount, ashLengthScale }) {
   const mouse = useRef({ x: 0, y: 0 });
 
   const growing = useRef(true);
+
+  const dropFinished = useRef(false);
+  const lookTarget = useRef(new THREE.Vector3(0, 0, 0));
 
   //materials
   const coverWrap = useTexture("/textures/coverWrap.png");
@@ -150,6 +158,38 @@ export default function CigaretteScene({ burnAmount, ashLengthScale }) {
   });
 
   useFrame(() => {
+    // dropping 애니메이션
+    if (mode === "dropping") {
+      console.log("dropping mode");
+
+      if (cigaretteGroup.current) {
+        const posY = cigaretteGroup.current.position.y;
+        if (posY > -12) {
+          cigaretteGroup.current.position.y -= 0.05;
+        }
+
+        const offset = burnAmount.current / 2;
+        const target = new THREE.Vector3(offset, -2, 0);
+        lookTarget.current.lerp(target, 0.05);
+        camera.lookAt(lookTarget.current);
+
+        if (posY <= -12 && !dropFinished.current) {
+          dropFinished.current = true;
+          const timestamp = new Date().toISOString();
+          const existing = JSON.parse(localStorage.getItem("ashtray") || "[]");
+          existing.push({
+            burn: burnAmount.current,
+            time: timestamp,
+          });
+          localStorage.setItem("ashtray", JSON.stringify(existing));
+          setMode("ashtray");
+          console.log("ashtray mode");
+        }
+      }
+
+      return;
+    }
+
     if (!cigaretteGroup.current || !ashRef.current) return;
 
     // cigaretteGroup 클리핑
@@ -162,9 +202,11 @@ export default function CigaretteScene({ burnAmount, ashLengthScale }) {
 
     // Ash 조건부 표시 및 위치/스케일 업데이트
     if (
-      burning.current &&
-      burnAmount.current > 0.31 &&
-      ashLengthScale.current >= 0.3
+      (mode === "smoking" &&
+        burning.current &&
+        burnAmount.current > 0.31 &&
+        ashLengthScale.current >= 0.3) ||
+      mode === "dropping"
     ) {
       const newX = INITIAL_OFFSET + burnAmount.current;
       ashRef.current.position.x = newX;

@@ -18,7 +18,7 @@ canvas {
 
 .ashtray-btn {
   position: absolute;
-  bottom: 24px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #1f2937;
@@ -32,4 +32,11 @@ canvas {
 .ashtray-btn:hover {
   background-color: #373e49;
   transition: all 300ms;
+}
+
+.timestamp {
+  /* position: absolute;
+  top: 10px;
+   */
+  font-family: Georgia, "Times New Roman", Times, serif;
 }
