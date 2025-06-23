@@ -36,7 +36,7 @@ export default function App() {
       camera={{ position: [5, 10, 5], fov: 45 }}
       shadows
       style={{ width: "100%", height: "100%" }}
-      gl={{ localClippingEnabled: true, toneMappingExposure: 1.0 }}
+      gl={{ localClippingEnabled: true, toneMappingExposure: 0.6 }}
     >
       <ambientLight intensity={0.1} />
       <directionalLight position={[40, 80, -40]} intensity={1.5} />
