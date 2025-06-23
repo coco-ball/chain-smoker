@@ -11,7 +11,7 @@ export default function AshtrayScene() {
   const { scene: ashScene } = useGLTF("/models/ash.glb");
   const ash = ashScene.getObjectByName("Ash");
 
-  const coverWrap = useTexture("/textures/coverWrapBurnt.png");
+  const coverWrap = useTexture("/textures/coverWrap.png");
   const coverRoughness = useTexture("/textures/coverRoughness.png");
   coverRoughness.encoding = THREE.LinearEncoding;
   coverWrap.encoding = THREE.sRGBEncoding;
