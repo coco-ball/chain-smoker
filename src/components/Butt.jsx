@@ -25,9 +25,9 @@ export default function Butt({
   leafWrap.magFilter = THREE.NearestFilter;
   leafWrap.anisotropy = 16;
 
-  coverWrap = useTexture(
-    isNew ? "/textures/coverWrap.png" : "/textures/coverWrapBurnt.png"
-  );
+  // coverWrap = useTexture(
+  //   isNew ? "/textures/coverWrap.png" : "/textures/coverWrapBurnt.png"
+  // );
 
   useEffect(() => {
     if (!cigModel) return;
