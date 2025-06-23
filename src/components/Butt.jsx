@@ -10,27 +10,38 @@ export default function Butt({
   ashModel,
   position,
   rotation,
-  coverWrap,
-  coverRoughness,
+  // coverWrap,
+  // coverRoughness,
 }) {
   const { burn, time, duration } = buttData;
-  const isNew = !duration || duration <= 0;
+  const isNew = !duration || duration <= 0 || duration === 2100;
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
   const [cloned, setCloned] = useState(null);
   const [ash, setAsh] = useState(null);
   const clipPlaneRef = useRef(null);
 
+  const coverWrap = useTexture(
+    isNew ? "/textures/coverWrap.png" : "/textures/coverWrapBurnt.png"
+  );
+  const coverRoughness = useTexture("/textures/coverRoughness.png");
   const leafWrap = useTexture("/textures/leafWrap.png");
-  leafWrap.magFilter = THREE.NearestFilter;
-  leafWrap.anisotropy = 16;
-
-  // coverWrap = useTexture(
-  //   isNew ? "/textures/coverWrap.png" : "/textures/coverWrapBurnt.png"
-  // );
 
   useEffect(() => {
     if (!cigModel) return;
+
+    coverWrap.encoding = THREE.sRGBEncoding;
+    coverWrap.magFilter = THREE.NearestFilter;
+    coverWrap.anisotropy = 16;
+    coverWrap.needsUpdate = true;
+    coverWrap.flipY = false;
+    coverWrap.wrapS = THREE.RepeatWrapping;
+    coverWrap.wrapT = THREE.RepeatWrapping;
+    coverWrap.repeat.set(1, 1);
+    coverRoughness.encoding = THREE.LinearEncoding;
+
+    leafWrap.magFilter = THREE.NearestFilter;
+    leafWrap.anisotropy = 16;
 
     const clone = cigModel.clone(true);
     const plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), -(-1.4 + burn));
@@ -56,16 +67,18 @@ export default function Butt({
           side: THREE.DoubleSide,
           clippingPlanes: [plane],
         });
-      } else if (child.material) {
-        child.material = child.material.clone();
-        child.material.transparent = true;
-        child.material.side = THREE.DoubleSide;
-        child.material.clippingPlanes = [plane];
       }
+      // } else if (child.material) {
+      //   child.material = child.material.clone();
+      //   child.material.transparent = true;
+      //   child.material.side = THREE.DoubleSide;
+      //   child.material.clippingPlanes = [plane];
+      // }
     });
 
     setCloned(clone);
-  }, [cigModel, burn, coverWrap, coverRoughness, leafWrap]);
+    console.log("coverWrap", coverWrap);
+  }, [cigModel, burn, coverWrap, leafWrap]);
 
   useEffect(() => {
     if (!ashModel) return;
@@ -122,11 +135,11 @@ export default function Butt({
         <Html center>
           <div className="timestamp">
             🕒 {new Date(time).toLocaleString()} <br />
-            {isNew
+            {/* {isNew
               ? "New one!"
               : `You smoked this butt for ${(duration / 1000).toFixed(
                   1
-                )} seconds.`}
+                )} seconds.`} */}
           </div>
         </Html>
       )}

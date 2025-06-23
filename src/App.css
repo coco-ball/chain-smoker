@@ -49,5 +49,17 @@ canvas {
   width: 100vw;
   text-align: center;
   font-size: 8rem;
+  /* letter-spacing: 2; */
   line-height: 90%;
+}
+
+.total-time {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  position: absolute;
+  top: 32px;
+  left: 0px;
+  z-index: 30;
+  /* text-align: right; */
+  padding-left: 480px;
+  width: 100vw;
 }

@@ -53,9 +53,15 @@ export default function CigaretteScene({
 
   useEffect(() => {
     const onDown = () => {
-      burning.current = true;
-      if (sessionStartRef.current === null) {
-        sessionStartRef.current = Date.now();
+      // burning.current = true;
+      // if (sessionStartRef.current === null) {
+      //   sessionStartRef.current = Date.now();
+      // }
+      if (!burning.current) {
+        burning.current = true;
+        if (sessionStartRef.current === null) {
+          sessionStartRef.current = Date.now();
+        }
       }
     };
     const onUp = () => (burning.current = false);
@@ -173,10 +179,14 @@ export default function CigaretteScene({
         if (posY <= -12 && !dropFinished.current) {
           dropFinished.current = true;
           const timestamp = new Date().toISOString();
-          const duration =
-            sessionStartRef.current !== null
-              ? Date.now() - sessionStartRef.current
-              : 0;
+          let duration = 0;
+          if (sessionStartRef.current !== null) {
+            duration = Date.now() - sessionStartRef.current;
+          }
+          // if (burning.current && sessionStartRef.current !== null) {
+          //   duration = Date.now() - sessionStartRef.current;
+          // }
+
           const existing = JSON.parse(localStorage.getItem("ashtray") || "[]");
           existing.push({
             burn: burnAmount.current,
@@ -184,9 +194,9 @@ export default function CigaretteScene({
             duration,
           });
           localStorage.setItem("ashtray", JSON.stringify(existing));
+
           setMode("ashtray");
           console.log("ashtray mode");
-
           sessionStartRef.current = null;
         }
       }

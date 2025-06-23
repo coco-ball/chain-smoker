@@ -1,6 +1,6 @@
 // AshtrayScene.jsx
 import { useEffect, useState } from "react";
-import { useGLTF, useTexture } from "@react-three/drei";
+import { useGLTF, Html } from "@react-three/drei";
 import Butt from "./Butt";
 import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
@@ -11,13 +11,15 @@ export default function AshtrayScene() {
   const { scene: ashScene } = useGLTF("/models/ash.glb");
   const ash = ashScene.getObjectByName("Ash");
 
-  const coverWrap = useTexture("/textures/coverWrap.png");
-  const coverRoughness = useTexture("/textures/coverRoughness.png");
-  coverRoughness.encoding = THREE.LinearEncoding;
-  coverWrap.encoding = THREE.sRGBEncoding;
-  coverWrap.minFilter = THREE.LinearMipMapLinearFilter;
-  coverWrap.magFilter = THREE.NearestFilter;
-  coverWrap.anisotropy = 16;
+  // const coverWrap = useTexture("/textures/coverWrapBurnt.png");
+  // const coverRoughness = useTexture("/textures/coverRoughness.png");
+  // coverRoughness.encoding = THREE.LinearEncoding;
+  // coverWrap.encoding = THREE.sRGBEncoding;
+  // coverWrap.minFilter = THREE.LinearMipMapLinearFilter;
+  // coverWrap.magFilter = THREE.NearestFilter;
+  // coverWrap.anisotropy = 16;
+
+  const totalDuration = butts.reduce((sum, b) => sum + (b.duration || 0), 0);
 
   const { camera } = useThree();
   const pileCenter = new THREE.Vector3(0, 5, 0);
@@ -92,11 +94,16 @@ export default function AshtrayScene() {
               ashModel={ash?.clone()}
               position={pos.toArray()}
               rotation={rot.toArray()}
-              coverWrap={coverWrap}
-              coverRoughness={coverRoughness}
+              // coverWrap={coverWrap}
+              // coverRoughness={coverRoughness}
             />
           );
         })}
+      <Html center>
+        <div className="total-time">
+          You smoked for {(totalDuration / 1000).toFixed(1)} seconds
+        </div>
+      </Html>
     </>
   );
 }
