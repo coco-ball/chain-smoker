@@ -38,5 +38,16 @@ canvas {
   /* position: absolute;
   top: 10px;
    */
+  width: 400px;
   font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.title {
+  position: absolute;
+  top: 32px;
+  z-index: 30;
+  width: 100vw;
+  text-align: center;
+  font-size: 8rem;
+  line-height: 90%;
 }

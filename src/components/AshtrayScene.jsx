@@ -14,17 +14,17 @@ export default function AshtrayScene() {
   const coverWrap = useTexture("/textures/coverWrapBurnt.png");
   const coverRoughness = useTexture("/textures/coverRoughness.png");
   coverRoughness.encoding = THREE.LinearEncoding;
+  coverWrap.encoding = THREE.sRGBEncoding;
   coverWrap.minFilter = THREE.LinearMipMapLinearFilter;
   coverWrap.magFilter = THREE.NearestFilter;
   coverWrap.anisotropy = 16;
-  coverWrap.encoding = THREE.sRGBEncoding;
 
   const { camera } = useThree();
   const pileCenter = new THREE.Vector3(0, 5, 0);
 
   const cameraTarget = {
     position: new THREE.Vector3(0, 7, 0),
-    fov: 20,
+    fov: 10,
     lookAt: pileCenter,
   };
 

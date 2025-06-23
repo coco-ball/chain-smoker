@@ -1,4 +1,4 @@
-import { useGLTF, useTexture } from "@react-three/drei";
+import { useGLTF, useTexture, Html } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
@@ -38,6 +38,8 @@ export default function CigaretteScene({
   const dropFinished = useRef(false);
   const lookTarget = useRef(new THREE.Vector3(0, 0, 0));
 
+  const sessionStartRef = useRef(null); // 시작 시간 기록용
+
   //materials
   const coverWrap = useTexture("/textures/coverWrap.png");
   const leafWrap = useTexture("/textures/leafWrap.png");
@@ -50,7 +52,12 @@ export default function CigaretteScene({
   leafWrap.anisotropy = 16;
 
   useEffect(() => {
-    const onDown = () => (burning.current = true);
+    const onDown = () => {
+      burning.current = true;
+      if (sessionStartRef.current === null) {
+        sessionStartRef.current = Date.now();
+      }
+    };
     const onUp = () => (burning.current = false);
     const onMove = (e) => {
       mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -166,14 +173,21 @@ export default function CigaretteScene({
         if (posY <= -12 && !dropFinished.current) {
           dropFinished.current = true;
           const timestamp = new Date().toISOString();
+          const duration =
+            sessionStartRef.current !== null
+              ? Date.now() - sessionStartRef.current
+              : 0;
           const existing = JSON.parse(localStorage.getItem("ashtray") || "[]");
           existing.push({
             burn: burnAmount.current,
             time: timestamp,
+            duration,
           });
           localStorage.setItem("ashtray", JSON.stringify(existing));
           setMode("ashtray");
           console.log("ashtray mode");
+
+          sessionStartRef.current = null;
         }
       }
 
