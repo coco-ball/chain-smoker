@@ -5,7 +5,6 @@ import { useFrame } from "@react-three/fiber";
 export default function SmokeParticles({ position }) {
   const particles = useRef();
 
-  // N개의 파티클 초기 위치 생성
   const count = 30;
   const dummyPositions = useMemo(() => {
     const arr = new Float32Array(count * 3);
